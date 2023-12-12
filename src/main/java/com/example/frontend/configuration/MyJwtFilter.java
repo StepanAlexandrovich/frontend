@@ -6,6 +6,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -29,6 +30,8 @@ public class MyJwtFilter extends OncePerRequestFilter {
         if(authorization!=null && authorization.startsWith("Bearer")){
             token = authorization.substring(7);
 
+
+
             try {
                 username = jwtTokenUtils.getUserName(token);
             }catch (Exception e){
@@ -39,7 +42,10 @@ public class MyJwtFilter extends OncePerRequestFilter {
 
         if(username!=null && SecurityContextHolder.getContext().getAuthentication() == null){
             UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken
-                    = new UsernamePasswordAuthenticationToken(username,jwtTokenUtils.getUserRole(token).stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList()));
+                    = new UsernamePasswordAuthenticationToken(
+                            username,
+                            null,
+                            jwtTokenUtils.getUserRole(token).stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList()));
             SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
         }
 
